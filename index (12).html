@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B Baruah Store</title><meta name="description" content="Fresh groceries from B Baruah Store. Pay online or on delivery.">
+<style>
+:root{--g:#0f7a3d;--a:#f5a524}*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,sans-serif;background:#fbfaf5;color:#1d2a20}
+h1,h2,.logo{font-family:Georgia,serif}a{color:inherit;text-decoration:none}
+.wrap{max-width:1100px;margin:auto;padding:0 16px}main{padding-bottom:60px}
+header{position:sticky;top:0;z-index:5;background:#fbfaf5f2;border-bottom:1px solid #0001}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding-top:10px;padding-bottom:10px}
+.logo{font-size:22px;font-weight:700;color:var(--g)}.sr{flex:1;min-width:200px}
+nav{display:flex;gap:14px;align-items:center;margin-left:auto;font-size:14px}
+input,select,textarea{font:inherit;padding:11px 14px;border:1px solid #0003;border-radius:12px;background:#fff;width:100%}
+select{width:auto;padding:6px 10px}input[type=checkbox],input[type=radio]{width:auto}
+.btn,.btn2{display:inline-block;border:0;border-radius:99px;padding:11px 20px;font:inherit;font-weight:600;cursor:pointer;text-align:center}
+.btn{background:var(--g);color:#fff}.btn2{background:#0f7a3d1a;color:var(--g)}
+.lnk{background:none;border:0;font:inherit;cursor:pointer;opacity:.7;padding:0}.red{color:#c62828}.gr{color:var(--g);font-weight:600}.muted{opacity:.7}.pre{white-space:pre-line}
+:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.card{background:#fff;border-radius:16px;padding:14px;box-shadow:0 1px 3px #0002}.pc{padding:0;overflow:hidden;display:block}
+.im,.big{aspect-ratio:1;background:#f1efe6;position:relative;overflow:hidden;border-radius:12px}.pc .im{border-radius:0}
+.im img,.big img{width:100%;height:100%;object-fit:cover}.ph{display:grid;place-items:center;height:100%;font-size:56px}
+.off{position:absolute;left:8px;top:8px;background:var(--a);border-radius:99px;padding:2px 9px;font-size:12px}.pi{padding:10px}s{opacity:.5}
+.hero{background:var(--g);color:#fff;border-radius:24px;padding:32px;margin-top:16px}.hero h1{margin:0;font-size:clamp(28px,5vw,48px);max-width:520px}
+.chips{display:flex;gap:16px;overflow-x:auto;padding:18px 0}.chips a{text-align:center;font-size:12px;width:76px;flex:none}
+.chips span{display:grid;place-items:center;width:62px;height:62px;margin:0 auto 4px;border-radius:50%;background:#e8f3ec;font-size:28px}
+.two{display:grid;gap:24px;margin-top:20px}@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.ths{display:flex;gap:8px;margin-top:8px}.ths button{width:60px;height:60px;padding:0;border:2px solid transparent;border-radius:8px;overflow:hidden;background:none;cursor:pointer}.ths .on{border-color:var(--g)}.ths img{width:100%;height:100%;object-fit:cover}
+.pp{font-size:30px;font-weight:700}.qty{display:flex;align-items:center;gap:12px;margin:12px 0}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0}.f1{flex:1}.sm{width:56px;height:56px;border-radius:10px;overflow:hidden;background:#f1efe6}.sm .ph{font-size:28px}.sm img{width:100%;height:100%;object-fit:cover}
+.mid{max-width:640px;margin:24px auto;display:grid;gap:10px}.stack{display:grid;gap:10px;margin-top:10px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.trk{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;list-style:none;padding:0;text-align:center;font-size:11px}.trk i{display:block;height:8px;border-radius:9px;background:#0002;margin-bottom:4px}.trk .on i{background:var(--g)}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:14px 0;align-items:center}.st{font-size:24px}
+.fb{height:10px;background:#0002;border-radius:9px;margin-bottom:8px}.fb i{display:block;height:10px;background:var(--g);border-radius:9px}
+</style></head><body>
+<header id="hd"></header><main id="app" class="wrap"></main>
+<script>
+/* ===== SETTINGS: edit these ===== */
+const CFG={RAZORPAY_KEY:"",ADMIN_PASS:"admin123",DELIVERY:40,FREE_ABOVE:499};
+/* ================================ */
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),inr=n=>"₹"+Number(n).toLocaleString("en-IN");
+const J=(k,d)=>{try{return JSON.parse(localStorage[k])||d}catch{return d}},g=(f,k)=>f.elements[k].value;
+function seed(){const c=[["Rice & Atta","🌾"],["Dal & Pulses","🫘"],["Oil & Masala","🫙"],["Tea & Snacks","🍵"]].map((x,i)=>({id:"c"+i,name:x[0],icon:x[1]}));
+const p=(n,ci,pr,sp,st,f)=>({id:"p"+Math.random().toString(36).slice(2,8),name:n,desc:"Sample product. Edit or delete it in the admin panel.",cat:"c"+ci,price:pr,sale:sp||null,stock:st,on:true,feat:!!f,imgs:[],ts:Date.now()});
+return{cats:c,prods:[p("Basmati Rice 5 kg",0,650,599,50,1),p("Aata 5 kg",0,260,0,40),p("Toor Dal 1 kg",1,160,149,30,1),p("Mustard Oil 1 L",2,180,0,25),p("Assam Tea 500 g",3,240,219,60,1),p("Garam Masala 100 g",2,70,0,80)],users:[],orders:[],ev:[]}}
+let db=J("bb_db")||seed(),cart=J("bb_cart",[]),me=localStorage.bb_me||"";
+const ST={qty:1,img:0,tab:"Analytics",ed:null,mode:"login",err:"",last:"",cs:0,m:"COD"};
+const save=()=>{try{localStorage.bb_db=JSON.stringify(db);localStorage.bb_cart=JSON.stringify(cart)}catch(e){alert("Browser storage is full. Remove some product photos.")}};
+const vid=localStorage.bb_vid||(localStorage.bb_vid=Math.random().toString(36).slice(2));
+const track=t=>{db.ev.push({t,v:vid,ts:Date.now()});if(db.ev.length>5000)db.ev.splice(0,500);save()};
+const user=()=>db.users.find(u=>u.id===me),P=id=>db.prods.find(p=>p.id===id),pr=p=>p.sale&&p.sale<p.price?p.sale:p.price;
+const ico=p=>(db.cats.find(c=>c.id===p.cat)||{}).icon||"🛒",act=()=>db.prods.filter(p=>p.on);
+const thumb=(p,i=0)=>p.imgs[i]?`<img src="${p.imgs[i]}" alt="${esc(p.name)}">`:`<div class="ph">${ico(p)}</div>`;
+const sha=async s=>crypto.subtle?[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join(""):btoa(unescape(encodeURIComponent(s)));
+const lines=()=>cart.map(c=>({p:P(c.id),q:c.q})).filter(l=>l.p&&l.p.on);
+const tot=()=>{const s=lines().reduce((a,l)=>a+pr(l.p)*l.q,0),d=s&&s<CFG.FREE_ABOVE?CFG.DELIVERY:0;return{s,d,t:s+d}};
+const err=m=>{ST.err=m;view()};
+const STEPS=[["PLACED","Order Placed"],["CONFIRMED","Confirmed"],["PREPARING","Preparing"],["OUT","Out for Delivery"],["DELIVERED","Delivered"]];
+async function shrink(f){const b=await createImageBitmap(f),k=Math.min(1,600/Math.max(b.width,b.height)),c=document.createElement("canvas");c.width=b.width*k;c.height=b.height*k;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(b,0,0,c.width,c.height);return c.toDataURL("image/jpeg",.7)}
+const loadRzp=()=>new Promise(r=>{if(window.Razorpay)return r();const s=document.createElement("script");s.src="https://checkout.razorpay.com/v1/checkout.js";s.onload=r;document.head.appendChild(s)});
+
+function hd(){const u=user(),n=cart.reduce((a,c)=>a+c.q,0);
+$("#hd").innerHTML=`<div class="wrap bar"><a class="logo" href="#/">B Baruah Store</a>${u?`<form data-f="search" class="sr"><input name="q" placeholder="Search rice, dal, oil…" aria-label="Search products"></form><nav><a href="#/orders">My Orders</a><a href="#/admin">Admin</a><a class="btn2" href="#/cart">Cart (${n})</a><button class="lnk" data-a="out">Sign out</button></nav>`:`<nav><a href="#/admin">Admin</a></nav>`}</div>`}
+const card=p=>`<a class="card pc" href="#/p/${p.id}"><div class="im">${thumb(p)}${pr(p)<p.price?`<b class="off">${Math.round(100-p.sale/p.price*100)}% OFF</b>`:""}</div><div class="pi"><div>${esc(p.name)}</div><strong>${inr(pr(p))}</strong> ${pr(p)<p.price?`<s>${inr(p.price)}</s>`:""}${p.stock<1?`<div class="red">Out of stock</div>`:""}</div></a>`;
+const grid=l=>l.length?`<div class="grid">${l.map(card).join("")}</div>`:"<p>No products found.</p>";
+const sec=(t,l)=>l.length?`<h2>${t}</h2>${grid(l)}`:"";
+const chips=()=>`<div class="chips">${db.cats.map(c=>`<a href="#/c/${c.id}"><span>${c.icon}</span>${esc(c.name)}</a>`).join("")}</div>`;
+function home(){const l=act();return`<div class="hero"><h1>Fresh groceries, delivered from B Baruah Store.</h1><p>Pay online or on delivery.</p></div>${chips()}${sec("Offers",l.filter(p=>pr(p)<p.price).slice(0,8))}${sec("Featured",l.filter(p=>p.feat).slice(0,8))}${sec("New arrivals",[...l].sort((a,b)=>b.ts-a.ts).slice(0,8))}`}
+function list(k,v){const l=act().filter(p=>k==="c"?p.cat===v:p.name.toLowerCase().includes(v.toLowerCase()));return chips()+`<h2>${k==="c"?esc((db.cats.find(c=>c.id===v)||{}).name||""):`Results for “${esc(v)}”`}</h2>`+grid(l)}
+function prod(id){const p=P(id);if(!p||!p.on)return"<p>Product not found.</p>";if(ST.last!==id){ST.last=id;ST.qty=1;ST.img=0;track("PV")}
+return`<div class="two"><div><div class="big">${thumb(p,ST.img)}</div><div class="ths">${p.imgs.map((s,i)=>`<button data-a="img" data-i="${i}" aria-label="Photo ${i+1}" class="${i===ST.img?"on":""}"><img src="${s}" alt=""></button>`).join("")}</div></div><div><h1>${esc(p.name)}</h1><div class="pp">${inr(pr(p))} ${pr(p)<p.price?`<s>${inr(p.price)}</s>`:""}</div><p class="${p.stock?"gr":"red"}">${p.stock?`In stock: ${p.stock} available`:"Out of stock"}</p>${p.stock?`<div class="qty"><button class="btn2" data-a="q" data-i="-1" aria-label="Decrease">−</button><b>${ST.qty}</b><button class="btn2" data-a="q" data-i="1" aria-label="Increase">+</button></div><button class="btn" data-a="add" data-i="${p.id}">Add to Cart</button>`:""}<p class="muted pre">${esc(p.desc)}</p></div></div>`}
+function cartV(){const l=lines();if(!l.length)return`<div class="mid"><p>Your cart is empty.</p><a class="btn" href="#/">Start shopping</a></div>`;const t=tot();
+return`<div class="mid"><h1>Your cart</h1>${l.map(({p,q})=>`<div class="card row"><div class="sm">${thumb(p)}</div><div class="f1"><b>${esc(p.name)}</b><div>${inr(pr(p))}</div></div><button class="btn2" data-a="cq" data-i="${p.id}:-1" aria-label="Decrease">−</button><b>${q}</b><button class="btn2" data-a="cq" data-i="${p.id}:1" aria-label="Increase">+</button><button class="lnk red" data-a="rm" data-i="${p.id}">Remove</button></div>`).join("")}<div class="card"><div class="row"><span class="f1">Subtotal</span>${inr(t.s)}</div><div class="row"><span class="f1">Delivery</span>${t.d?inr(t.d):"Free"}</div><div class="row"><b class="f1">Total</b><b>${inr(t.t)}</b></div></div><a class="btn" href="#/checkout">Proceed to checkout</a></div>`}
+function checkout(){const l=lines();if(!l.length)return cartV();if(!ST.cs){ST.cs=1;track("CS")}const u=user(),t=tot(),on=!!CFG.RAZORPAY_KEY;
+return`<form data-f="place" class="mid"><h1>Checkout</h1><input name="name" placeholder="Full name" value="${esc(u.name)}"><input name="phone" inputmode="numeric" placeholder="10-digit phone number" value="${esc(u.phone)}"><textarea name="addr" rows="3" placeholder="Delivery address">${esc(u.addr)}</textarea><input name="pin" inputmode="numeric" placeholder="Area pincode" value="${esc(u.pin)}"><div class="card"><b>Order summary</b>${l.map(x=>`<div class="row"><span class="f1">${esc(x.p.name)} × ${x.q}</span>${inr(pr(x.p)*x.q)}</div>`).join("")}<div class="row"><b class="f1">Total (incl. delivery)</b><b>${inr(t.t)}</b></div></div><label class="card"><input type="radio" name="m" value="COD" ${ST.m==="COD"||!on?"checked":""}> Cash on Delivery</label><label class="card"><input type="radio" name="m" value="ONLINE" ${on?(ST.m==="ONLINE"?"checked":""):"disabled"}> Pay online: UPI, cards, net banking${on?"":" (not set up yet)"}</label><p class="red" role="alert">${ST.err}</p><button class="btn">Place order</button></form>`}
+const oc=o=>`<div class="card"><div class="row"><b class="f1">Order #${o.id}</b>${new Date(o.ts).toLocaleDateString("en-IN")}</div>${o.items.map(i=>`<div class="row"><span class="f1">${esc(i.name)} × ${i.qty}</span>${inr(i.price*i.qty)}</div>`).join("")}<p class="muted">${o.method==="COD"?"Cash on Delivery":"Online (Razorpay)"} · ${o.pay} · Delivery ${o.del?inr(o.del):"Free"} · <b>Total ${inr(o.total)}</b><br>${esc(o.name)}, ${esc(o.phone)}. ${esc(o.addr)}, ${esc(o.pin)}</p>${o.st==="CANCELLED"?`<p class="red"><b>This order was cancelled.</b></p>`:`<ol class="trk">${STEPS.map((s,k)=>`<li class="${k<=STEPS.findIndex(x=>x[0]===o.st)?"on":""}"><i></i>${s[1]}</li>`).join("")}</ol>`}</div>`;
+function orders(oid){const m=db.orders.filter(o=>o.uid===me).sort((a,b)=>b.ts-a.ts);if(oid)return`<div class="mid"><h1>Thank you, your order is placed!</h1>${m.filter(o=>o.id===oid).map(oc).join("")}<a class="btn" href="#/">Continue shopping</a></div>`;return`<div class="mid"><h1>My Orders</h1>${m.map(oc).join("")||"<p>No orders yet.</p>"}</div>`}
+function login(){const r=ST.mode==="register";return`<div class="mid"><h1>${r?"Create your account":"Welcome to B Baruah Store"}</h1><p class="muted">Sign in to shop fresh groceries.</p><form data-f="auth" class="stack">${r?`<input name="name" placeholder="Your name">`:""}<input name="uid" placeholder="Mobile number or email"><input name="pw" type="password" placeholder="Password (8+ characters)"><p class="red" role="alert">${ST.err}</p><button class="btn">${r?"Create account":"Sign in"}</button></form><button class="lnk" data-a="mode" data-i="${r?"login":"register"}">${r?"Already have an account? Sign in":"New here? Create an account"}</button></div>`}
+/* ---- admin ---- */
+function stats(){const e=db.ev,n=t=>e.filter(x=>x.t===t).length,vw=e.filter(x=>x.t==="VIEW"),O=db.orders,ok=O.filter(o=>o.st!=="CANCELLED"&&(o.method==="COD"||o.pay==="PAID")),d0=new Date().setHours(0,0,0,0),sum=f=>inr(ok.filter(o=>o.ts>=f).reduce((a,o)=>a+o.total,0)),uq=new Set(vw.map(x=>x.v)).size;
+const c=[["Total visitors",new Set(vw.map(x=>x.v+new Date(x.ts).toDateString())).size],["Unique visitors",uq],["Registered users",db.users.length],["Product views",n("PV")],["Add to cart",n("ATC")],["Checkout started",n("CS")],["Orders",O.length],["Completed orders",O.filter(o=>o.st==="DELIVERED").length],["Cancelled orders",O.filter(o=>o.st==="CANCELLED").length],["Online payments",O.filter(o=>o.method==="ONLINE").length],["COD orders",O.filter(o=>o.method==="COD").length],["Total sales",sum(0)],["Today's sales",sum(d0)],["This week",sum(Date.now()-7*864e5)],["This month",sum(Date.now()-30*864e5)]];
+const f=[["Visitors",uq],["Product views",n("PV")],["Add to cart",n("ATC")],["Checkout",n("CS")],["Orders",O.length]],m=Math.max(1,...f.map(x=>x[1]));
+return`<div class="grid">${c.map(x=>`<div class="card"><b class="st">${x[1]}</b><div class="muted">${x[0]}</div></div>`).join("")}</div><h2>Funnel</h2><div class="mid" style="margin:0">${f.map(x=>`<div class="row"><span class="f1">${x[0]}</span><b>${x[1]}</b></div><div class="fb"><i style="width:${x[1]/m*100}%"></i></div>`).join("")}</div>`}
+function aord(){return`<div class="stack">${[...db.orders].sort((a,b)=>b.ts-a.ts).map(o=>`<div class="card"><div class="row"><b class="f1">#${o.id}</b>${new Date(o.ts).toLocaleString("en-IN")} <b>${inr(o.total)}</b></div><p>${esc(o.name)} · ${esc(o.phone)}<br>${esc(o.addr)}, ${esc(o.pin)}</p>${o.items.map(i=>`<div>${esc(i.name)} × ${i.qty}</div>`).join("")}<div class="row"><span class="btn2">${o.method==="COD"?"Cash on Delivery":"Online (Razorpay)"}</span><select aria-label="Payment status" data-ch="pay" data-i="${o.id}">${["PENDING","PAID","REFUNDED"].map(s=>`<option ${s===o.pay?"selected":""}>${s}</option>`).join("")}</select><select aria-label="Order status" data-ch="st" data-i="${o.id}">${[...STEPS.map(s=>s[0]),"CANCELLED"].map(s=>`<option ${s===o.st?"selected":""}>${s}</option>`).join("")}</select></div></div>`).join("")||"<p>No orders yet.</p>"}</div>`}
+function aprod(){const e=ST.ed;if(e)return`<form data-f="prod" class="mid"><input name="name" placeholder="Product name" value="${esc(e.name)}"><textarea name="desc" rows="4" placeholder="Description">${esc(e.desc)}</textarea><select name="cat" style="width:100%">${db.cats.map(c=>`<option value="${c.id}" ${c.id===e.cat?"selected":""}>${esc(c.name)}</option>`).join("")}</select><div class="three"><input name="price" type="number" placeholder="Price ₹" value="${e.price||""}"><input name="sale" type="number" placeholder="Discount ₹" value="${e.sale||""}"><input name="stock" type="number" placeholder="Stock" value="${e.stock}"></div><label><input type="checkbox" name="on" ${e.on?"checked":""}> Active</label><label><input type="checkbox" name="feat" ${e.feat?"checked":""}> Featured</label><div class="ths">${e.imgs.map((s,i)=>`<button type="button" data-a="rmimg" data-i="${i}" title="Tap to remove"><img src="${s}" alt="Photo ${i+1}"></button>`).join("")}</div><input type="file" accept="image/*" multiple data-ch="img"><p class="red" role="alert">${ST.err}</p><button class="btn">Save product</button><button type="button" class="btn2" data-a="tab" data-i="Products">Cancel</button></form>`;
+return`<button class="btn" data-a="newp">+ Add product</button><div class="stack">${db.prods.map(p=>`<div class="card row"><div class="sm">${thumb(p)}</div><div class="f1"><b>${esc(p.name)}</b><div>${inr(pr(p))} · Stock ${p.stock} · ${p.on?"Active":"Hidden"}</div></div><button class="btn2" data-a="editp" data-i="${p.id}">Edit</button><button class="lnk red" data-a="delp" data-i="${p.id}">Delete</button></div>`).join("")}</div>`}
+const acat=()=>`<form data-f="cat" class="card row"><input name="n" placeholder="Category name" style="flex:1"><input name="i" placeholder="Icon (emoji)" style="width:110px"><button class="btn">Add</button></form><div class="stack">${db.cats.map(c=>`<div class="card row"><span class="f1">${c.icon} ${esc(c.name)}</span><button class="lnk red" data-a="delc" data-i="${c.id}">Delete</button></div>`).join("")}</div>`;
+const acus=()=>`<div class="stack">${db.users.map(u=>{const o=db.orders.filter(x=>x.uid===u.id);return`<div class="card"><b>${esc(u.name)}</b> · ${esc(u.id)}<div class="muted">Joined ${new Date(u.ts).toLocaleDateString("en-IN")} · ${o.length} orders · Spent ${inr(o.filter(x=>x.st!=="CANCELLED").reduce((a,x)=>a+x.total,0))}${u.addr?`<br>${esc(u.addr)}, ${esc(u.pin)}`:""}</div></div>`}).join("")||"<p>No customers yet.</p>"}</div>`;
+function admin(){if(!sessionStorage.bb_adm)return`<form data-f="adm" class="mid"><h1>Admin login</h1><input type="password" name="p" placeholder="Admin password" aria-label="Admin password"><p class="red" role="alert">${ST.err}</p><button class="btn">Open admin</button></form>`;
+return`<div class="tabs">${["Analytics","Orders","Products","Categories","Customers"].map(t=>`<button class="${ST.tab===t?"btn":"btn2"}" data-a="tab" data-i="${t}">${t}</button>`).join("")}<button class="lnk" data-a="lock">Lock admin</button></div>`+({Analytics:stats,Orders:aord,Products:aprod,Categories:acat,Customers:acus}[ST.tab])()}
+/* ---- router + events ---- */
+function view(){const h=location.hash.slice(1)||"/",[,a,b]=h.split("/");if(a!=="p")ST.last="";if(a!=="checkout")ST.cs=0;hd();let o;
+if(a==="admin")o=admin();else if(!user())o=login();else if(a==="p")o=prod(b);else if(a==="cart")o=cartV();else if(a==="checkout")o=checkout();else if(a==="orders")o=orders();else if(a==="o")o=orders(b);else if(a==="s"||a==="c")o=list(a,decodeURIComponent(b||""));else o=home();
+$("#app").innerHTML=o}
+function snap(){const f=document.querySelector("[data-f=prod]");if(!f||!ST.ed)return;Object.assign(ST.ed,{name:g(f,"name"),desc:g(f,"desc"),cat:g(f,"cat"),price:+g(f,"price")||0,sale:+g(f,"sale")||0,stock:+g(f,"stock")||0,on:f.elements.on.checked,feat:f.elements.feat.checked})}
+const A={
+img:i=>{ST.img=+i;view()},q:i=>{ST.qty=Math.max(1,Math.min(P(ST.last).stock,ST.qty+ +i));view()},
+add:id=>{const p=P(id),c=cart.find(x=>x.id===id);if(c)c.q=Math.min(p.stock,c.q+ST.qty);else cart.push({id,q:ST.qty});track("ATC");save();location.hash="#/cart"},
+cq:i=>{const[id,d]=i.split(":"),c=cart.find(x=>x.id===id);c.q=Math.max(1,Math.min(P(id).stock,c.q+ +d));save();view()},
+rm:id=>{cart=cart.filter(x=>x.id!==id);save();view()},out:()=>{me="";delete localStorage.bb_me;location.hash="#/";view()},
+mode:m=>{ST.mode=m;ST.err="";view()},tab:t=>{ST.tab=t;ST.ed=null;ST.err="";view()},lock:()=>{delete sessionStorage.bb_adm;view()},
+newp:()=>{ST.ed={name:"",desc:"",cat:(db.cats[0]||{}).id||"",price:0,sale:0,stock:0,on:true,feat:false,imgs:[]};view()},
+editp:id=>{ST.ed=structuredClone(P(id));view()},
+delp:id=>{if(confirm("Delete this product?")){db.prods=db.prods.filter(p=>p.id!==id);cart=cart.filter(c=>c.id!==id);save();view()}},
+delc:id=>{if(confirm("Delete this category? Its products stay, without a category.")){db.cats=db.cats.filter(c=>c.id!==id);save();view()}},
+rmimg:i=>{snap();ST.ed.imgs.splice(+i,1);view()}};
+const F={
+search(f){location.hash="#/s/"+encodeURIComponent(g(f,"q").trim())},
+adm(f){if(g(f,"p")===CFG.ADMIN_PASS){sessionStorage.bb_adm=1;ST.err="";view()}else err("Wrong password.")},
+async auth(f){const id=g(f,"uid").trim().toLowerCase(),pw=g(f,"pw");if(!(/^[6-9]\d{9}$/.test(id)||/^\S+@\S+\.\S+$/.test(id))||pw.length<8)return err("Enter a valid 10-digit mobile number or email, and a password of 8+ characters.");
+const h=await sha(pw);let u=db.users.find(x=>x.id===id);
+if(ST.mode==="register"){const n=g(f,"name").trim();if(u)return err("This account already exists. Sign in instead.");if(!n)return err("Enter your name.");db.users.push({id,name:n.slice(0,40),h,phone:/^\d{10}$/.test(id)?id:"",addr:"",pin:"",ts:Date.now()})}
+else if(!u||u.h!==h)return err("Wrong mobile/email or password.");
+me=id;localStorage.bb_me=id;ST.err="";save();location.hash="#/";view()},
+async place(f){const u=user(),t=tot(),l=lines(),m=g(f,"m"),d={name:g(f,"name").trim(),phone:g(f,"phone").trim(),addr:g(f,"addr").trim(),pin:g(f,"pin").trim()};ST.m=m;
+if(!d.name||!/^\d{10}$/.test(d.phone)||d.addr.length<5||!/^\d{6}$/.test(d.pin))return err("Please fill in your name, 10-digit phone, address and 6-digit pincode.");
+for(const x of l)if(x.q>x.p.stock)return err(`Only ${x.p.stock} of ${x.p.name} left in stock.`);
+const done=(pay,pid)=>{l.forEach(x=>x.p.stock-=x.q);const o={id:"BB"+Date.now().toString(36).toUpperCase(),uid:u.id,...d,items:l.map(x=>({id:x.p.id,name:x.p.name,price:pr(x.p),qty:x.q})),sub:t.s,del:t.d,total:t.t,method:m,pay,pid,st:"PLACED",ts:Date.now()};db.orders.push(o);Object.assign(u,d);cart=[];ST.err="";save();location.hash="#/o/"+o.id};
+if(m==="COD")return done("PENDING");
+await loadRzp();new Razorpay({key:CFG.RAZORPAY_KEY,amount:t.t*100,currency:"INR",name:"B Baruah Store",prefill:{name:d.name,contact:d.phone},handler:r=>done("PAID",r.razorpay_payment_id),modal:{ondismiss:()=>err("Payment was not completed. No order was placed.")}}).open()},
+prod(f){snap();const e=ST.ed;if(!e.name.trim()||!e.price)return err("Name and price are required.");if(e.sale&&e.sale>=e.price)return err("Discount price must be lower than the price.");
+e.name=e.name.trim();e.sale=e.sale||null;if(e.id)Object.assign(P(e.id),e);else{e.id="p"+Date.now().toString(36);e.ts=Date.now();db.prods.push(e)}ST.ed=null;ST.err="";save();view()},
+cat(f){const n=g(f,"n").trim();if(n){db.cats.push({id:"c"+Date.now().toString(36),name:n,icon:g(f,"i").trim()||"🛒"});save();view()}}};
+document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(t)A[t.dataset.a]?.(t.dataset.i)});
+document.addEventListener("submit",e=>{e.preventDefault();F[e.target.dataset.f]?.(e.target)});
+document.addEventListener("change",async e=>{const t=e.target,k=t.dataset.ch;if(!k)return;
+if(k==="img"){snap();for(const f of t.files)if(ST.ed.imgs.length<4)ST.ed.imgs.push(await shrink(f));return view()}
+const o=db.orders.find(x=>x.id===t.dataset.i);if(k==="pay")o.pay=t.value;else{if(o.st==="CANCELLED"){alert("Cancelled orders cannot be reopened.");return view()}if(t.value==="CANCELLED")o.items.forEach(i=>{const p=P(i.id);if(p)p.stock+=i.qty});o.st=t.value}save();view()});
+addEventListener("hashchange",view);track("VIEW");view();
+</script></body></html>
